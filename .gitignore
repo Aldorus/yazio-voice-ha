@@ -20,10 +20,3 @@ build/
 
 # IDE
 .idea/
-
-# Unrelated local experiments (contain real device keys / API secrets —
-# never commit): Tuya smart-home dumps predating this project.
-devices.json
-snapshot.json
-tinytuya.json
-tuya-raw.json

@@ -1,0 +1,111 @@
+# À fusionner dans scripts.yaml. Ce sont les DEUX seules entités à exposer à
+# Assist (Paramètres > Voix > Exposer) pour que l'agent de conversation
+# (Claude) puisse les utiliser comme outils pendant une conversation vocale.
+#
+# Flux attendu côté agent :
+#   1. Appeler yazio_search_food avec ce que l'utilisateur a dicté.
+#   2. Relayer le résultat à l'utilisateur ("j'ai trouvé Pomme, 150g, je
+#      log ?") et attendre sa confirmation dans le même échange vocal.
+#   3. Si confirmé, appeler yazio_log_food avec product_id/amount/serving
+#      renvoyés par l'étape 1 et le repas (meal) dicté par l'utilisateur.
+# Ne jamais appeler yazio_log_food sans confirmation explicite.
+
+yazio_search_food:
+  alias: "Yazio - Chercher un aliment"
+  description: >
+    Cherche un aliment dans la base Yazio et calcule la quantité à logger.
+    Ne journalise rien. À utiliser AVANT yazio_log_food, puis attendre la
+    confirmation de l'utilisateur.
+  fields:
+    food:
+      name: Aliment
+      description: "Nom de l'aliment tel que dicté, ex: pomme, poulet"
+      required: true
+      selector:
+        text: {}
+    quantity:
+      name: Quantité
+      description: "Quantité dictée, ex: 150"
+      required: true
+      selector:
+        number:
+          mode: box
+          min: 0
+          step: 0.1
+    unit:
+      name: Unité
+      description: "Unité dictée, ex: g, ml, piece, portion"
+      required: true
+      selector:
+        text: {}
+  sequence:
+    - action: yazio_voice.search_food
+      data:
+        food: "{{ food }}"
+        quantity: "{{ quantity }}"
+        unit: "{{ unit }}"
+      response_variable: result
+    - stop: ""
+      response_variable: result
+  mode: parallel
+  max: 10
+
+yazio_log_food:
+  alias: "Yazio - Logger un aliment"
+  description: >
+    Enregistre un aliment dans le journal Yazio. Ne l'appeler qu'après
+    confirmation explicite de l'utilisateur et après avoir appelé
+    yazio_search_food pour obtenir product_id/amount/serving.
+  fields:
+    product_id:
+      name: ID produit
+      description: "product_id renvoyé par yazio_search_food"
+      required: true
+      selector:
+        text: {}
+    amount:
+      name: Quantité (unité de base)
+      description: "amount renvoyé par yazio_search_food"
+      required: true
+      selector:
+        number:
+          mode: box
+          min: 0
+          step: 0.1
+    serving:
+      name: Serving
+      description: "serving renvoyé par yazio_search_food (optionnel)"
+      required: false
+      selector:
+        text: {}
+    serving_quantity:
+      name: Quantité de serving
+      description: "serving_quantity renvoyé par yazio_search_food (optionnel)"
+      required: false
+      selector:
+        number:
+          mode: box
+    meal:
+      name: Repas
+      description: "Repas dicté par l'utilisateur"
+      required: true
+      selector:
+        select:
+          options:
+            - breakfast
+            - lunch
+            - dinner
+            - snack
+  sequence:
+    - action: yazio_voice.log_food
+      data:
+        product_id: "{{ product_id }}"
+        amount: "{{ amount }}"
+        serving: "{{ serving | default(none) }}"
+        serving_quantity: "{{ serving_quantity | default(none) }}"
+        meal: "{{ meal }}"
+      response_variable: result
+    - stop: ""
+      response_variable: result
+  mode: parallel
+  max: 10
