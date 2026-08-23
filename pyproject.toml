@@ -1,0 +1,22 @@
+[project]
+name = "yazio-client"
+version = "0.1.0"
+description = "Client Yazio (API mobile reverse-engineered), vendored dans l'intégration Home Assistant yazio_voice"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "responses>=0.25",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["custom_components/yazio_voice"]
+include = ["yazio_client*"]
