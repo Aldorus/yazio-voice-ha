@@ -29,11 +29,18 @@ d'AppDaemon, pas de rest_command, pas de port HTTP à exposer).
 
 ## Installation
 
-1. **Copier le dossier** `custom_components/yazio_voice/` dans `config/custom_components/` de votre instance Home Assistant.
-2. Redémarrer Home Assistant.
-3. **Ajouter l'intégration** (seule saisie manuelle avec l'étape 4) : Paramètres → Appareils et services → Ajouter une intégration → « Yazio Voice » → entrer email/mot de passe Yazio. Le mot de passe n'est jamais stocké ensuite, seuls les tokens le sont (dans l'entrée de configuration HA).
+### Via HACS (recommandé)
+
+1. HACS → menu ⋮ → **Dépôts personnalisés** → ajouter `https://github.com/Aldorus/yazio-voice-ha`, catégorie **Intégration**.
+2. Installer « Yazio Voice » depuis HACS, redémarrer Home Assistant.
+3. **Ajouter l'intégration** (seule saisie manuelle avec l'étape 5) : Paramètres → Appareils et services → Ajouter une intégration → « Yazio Voice » → entrer email/mot de passe Yazio. Le mot de passe n'est jamais stocké ensuite, seuls les tokens le sont (dans l'entrée de configuration HA).
 4. Fusionner [`homeassistant/scripts_yazio_voice.yaml`](homeassistant/scripts_yazio_voice.yaml) dans `scripts.yaml`, recharger les scripts.
 5. **Exposer les entités à Assist** (seconde saisie manuelle) : Paramètres → Voix → Exposer, activer `script.yazio_search_food` et `script.yazio_log_food`.
+
+### Manuellement
+
+1. Copier `custom_components/yazio_voice/` dans `config/custom_components/`.
+2. Suivre les étapes 2 à 5 ci-dessus.
 
 ## Développement
 
