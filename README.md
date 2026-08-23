@@ -1,6 +1,6 @@
 # Tracker de calories vocal → Yazio
 
-Voir [CLAUDE.md](.idea/CLAUDE.md) pour le cadrage complet du projet.
+(Le cadrage détaillé du projet, CLAUDE.md, n'est pas publié dans ce repo.)
 
 ## Architecture
 
