@@ -1,13 +1,13 @@
 search_food:
-  name: Chercher un aliment (Yazio)
+  name: Search for a food (Yazio)
   description: >-
-    Cherche un aliment dans la base Yazio et calcule la quantité à logger.
-    Ne journalise rien. À utiliser avant log_food, puis attendre la
-    confirmation explicite de l'utilisateur.
+    Searches the Yazio database for a food and computes the amount to log.
+    Logs nothing. Use before log_food, then wait for the user's explicit
+    confirmation.
   fields:
     food:
       required: true
-      example: "pomme"
+      example: "apple"
       selector:
         text:
     quantity:
@@ -25,11 +25,10 @@ search_food:
         text:
 
 log_food:
-  name: Logger un aliment (Yazio)
+  name: Log a food (Yazio)
   description: >-
-    Enregistre un aliment dans le journal Yazio. À n'appeler qu'après
-    confirmation explicite de l'utilisateur, avec les valeurs renvoyées par
-    search_food.
+    Records a food in the Yazio diary. Only call after the user's explicit
+    confirmation, using the values returned by search_food.
   fields:
     product_id:
       required: true

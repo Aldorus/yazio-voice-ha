@@ -2,19 +2,19 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connexion à Yazio",
-        "description": "Identifiants Yazio, utilisés une seule fois pour obtenir les tokens d'accès. Le mot de passe n'est pas conservé ensuite.",
+        "title": "Connect to Yazio",
+        "description": "Yazio credentials, used only once to obtain access tokens. The password is not stored afterwards.",
         "data": {
           "email": "Email",
-          "password": "Mot de passe"
+          "password": "Password"
         }
       }
     },
     "error": {
-      "invalid_auth": "Identifiants Yazio refusés"
+      "invalid_auth": "Yazio credentials rejected"
     },
     "abort": {
-      "already_configured": "Ce compte Yazio est déjà configuré"
+      "already_configured": "This Yazio account is already configured"
     }
   }
 }

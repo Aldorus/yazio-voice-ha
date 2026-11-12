@@ -54,7 +54,7 @@ def test_add_consumed_item_posts_expected_body():
         amount=150,
     )
 
-    assert item_id  # uuid généré côté client
+    assert item_id  # uuid generated client-side
 
     import json
 

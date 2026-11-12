@@ -1,6 +1,6 @@
 class YazioError(Exception):
-    """Erreur générique du client Yazio."""
+    """Generic Yazio client error."""
 
 
 class YazioAuthError(YazioError):
-    """Échec d'authentification ou de rafraîchissement de token."""
+    """Authentication or token refresh failure."""

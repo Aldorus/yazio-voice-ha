@@ -1,31 +1,31 @@
-# À fusionner dans scripts.yaml. Ce sont les DEUX seules entités à exposer à
-# Assist (Paramètres > Voix > Exposer) pour que l'agent de conversation
-# (Claude) puisse les utiliser comme outils pendant une conversation vocale.
+# To be merged into scripts.yaml. These are the ONLY TWO entities to expose
+# to Assist (Settings > Voice assistants > Expose) so that the conversation
+# agent (Claude) can use them as tools during a voice conversation.
 #
-# Flux attendu côté agent :
-#   1. Appeler yazio_search_food avec ce que l'utilisateur a dicté.
-#   2. Relayer le résultat à l'utilisateur ("j'ai trouvé Pomme, 150g, je
-#      log ?") et attendre sa confirmation dans le même échange vocal.
-#   3. Si confirmé, appeler yazio_log_food avec product_id/amount/serving
-#      renvoyés par l'étape 1 et le repas (meal) dicté par l'utilisateur.
-# Ne jamais appeler yazio_log_food sans confirmation explicite.
+# Expected flow on the agent side:
+#   1. Call yazio_search_food with what the user dictated.
+#   2. Relay the result to the user ("I found Apple, 150g, shall I log
+#      it?") and wait for their confirmation in the same voice exchange.
+#   3. If confirmed, call yazio_log_food with the product_id/amount/serving
+#      returned by step 1 and the meal dictated by the user.
+# Never call yazio_log_food without explicit confirmation.
 
 yazio_search_food:
-  alias: "Yazio - Chercher un aliment"
+  alias: "Yazio - Search for a food"
   description: >
-    Cherche un aliment dans la base Yazio et calcule la quantité à logger.
-    Ne journalise rien. À utiliser AVANT yazio_log_food, puis attendre la
-    confirmation de l'utilisateur.
+    Searches the Yazio database for a food and computes the amount to log.
+    Logs nothing. Use BEFORE yazio_log_food, then wait for the user's
+    confirmation.
   fields:
     food:
-      name: Aliment
-      description: "Nom de l'aliment tel que dicté, ex: pomme, poulet"
+      name: Food
+      description: "Name of the food as dictated, e.g. apple, chicken"
       required: true
       selector:
         text: {}
     quantity:
-      name: Quantité
-      description: "Quantité dictée, ex: 150"
+      name: Quantity
+      description: "Dictated quantity, e.g. 150"
       required: true
       selector:
         number:
@@ -33,8 +33,8 @@ yazio_search_food:
           min: 0
           step: 0.1
     unit:
-      name: Unité
-      description: "Unité dictée, ex: g, ml, piece, portion"
+      name: Unit
+      description: "Dictated unit, e.g. g, ml, piece, portion"
       required: true
       selector:
         text: {}
@@ -51,21 +51,21 @@ yazio_search_food:
   max: 10
 
 yazio_log_food:
-  alias: "Yazio - Logger un aliment"
+  alias: "Yazio - Log a food"
   description: >
-    Enregistre un aliment dans le journal Yazio. Ne l'appeler qu'après
-    confirmation explicite de l'utilisateur et après avoir appelé
-    yazio_search_food pour obtenir product_id/amount/serving.
+    Records a food in the Yazio diary. Only call it after the user's
+    explicit confirmation and after calling yazio_search_food to obtain
+    product_id/amount/serving.
   fields:
     product_id:
-      name: ID produit
-      description: "product_id renvoyé par yazio_search_food"
+      name: Product ID
+      description: "product_id returned by yazio_search_food"
       required: true
       selector:
         text: {}
     amount:
-      name: Quantité (unité de base)
-      description: "amount renvoyé par yazio_search_food"
+      name: Amount (base unit)
+      description: "amount returned by yazio_search_food"
       required: true
       selector:
         number:
@@ -74,20 +74,20 @@ yazio_log_food:
           step: 0.1
     serving:
       name: Serving
-      description: "serving renvoyé par yazio_search_food (optionnel)"
+      description: "serving returned by yazio_search_food (optional)"
       required: false
       selector:
         text: {}
     serving_quantity:
-      name: Quantité de serving
-      description: "serving_quantity renvoyé par yazio_search_food (optionnel)"
+      name: Serving quantity
+      description: "serving_quantity returned by yazio_search_food (optional)"
       required: false
       selector:
         number:
           mode: box
     meal:
-      name: Repas
-      description: "Repas dicté par l'utilisateur"
+      name: Meal
+      description: "Meal dictated by the user"
       required: true
       selector:
         select:

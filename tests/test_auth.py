@@ -52,7 +52,7 @@ def test_ensure_valid_token_refreshes_when_expired():
     auth = YazioAuth()
     auth.login("user@example.com", "hunter2")
 
-    # Force l'expiration du token courant.
+    # Force the current token to expire.
     auth._tokens.expires_at = time.time() - 1
 
     refreshed_response = {**TOKEN_RESPONSE, "access_token": "fake-access-2"}

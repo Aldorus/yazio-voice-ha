@@ -54,13 +54,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             return await hass.async_add_executor_job(_do)
         except YazioError as exc:
-            _LOGGER.warning("Recherche Yazio échouée pour '%s': %s", food, exc)
+            _LOGGER.warning("Yazio search failed for '%s': %s", food, exc)
             return {"found": False, "error": str(exc)}
 
     async def handle_log_food(call: ServiceCall) -> ServiceResponse:
         meal = call.data["meal"]
         if meal not in DAYTIMES:
-            return {"logged": False, "error": f"meal invalide: {meal!r}"}
+            return {"logged": False, "error": f"invalid meal: {meal!r}"}
 
         product_id = call.data["product_id"]
         amount = float(call.data["amount"])
@@ -80,7 +80,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             item_id = await hass.async_add_executor_job(_do)
         except YazioError as exc:
-            _LOGGER.warning("Écriture Yazio échouée: %s", exc)
+            _LOGGER.warning("Yazio write failed: %s", exc)
             return {"logged": False, "error": str(exc)}
         return {"logged": True, "item_id": item_id}
 

@@ -1,7 +1,7 @@
 [project]
 name = "yazio-client"
 version = "0.1.0"
-description = "Client Yazio (API mobile reverse-engineered), vendored dans l'intégration Home Assistant yazio_voice"
+description = "Yazio client (reverse-engineered mobile API), vendored into the yazio_voice Home Assistant integration"
 requires-python = ">=3.11"
 dependencies = [
     "requests>=2.31",

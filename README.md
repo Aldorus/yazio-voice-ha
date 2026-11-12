@@ -1,48 +1,48 @@
-# Tracker de calories vocal → Yazio
+# Voice calorie tracker → Yazio
 
-(Le cadrage détaillé du projet, CLAUDE.md, n'est pas publié dans ce repo.)
+(The detailed project brief, CLAUDE.md, is not published in this repo.)
 
 ## Architecture
 
-Le pipeline Assist de Home Assistant est déjà en place (satellite vocal +
-agent de conversation Claude). Ce projet **crée le "skill"** qui manque :
-une intégration Home Assistant qui expose deux outils à Assist pour
-chercher un aliment dans Yazio puis le logger, avec confirmation humaine
-obligatoire entre les deux.
+The Home Assistant Assist pipeline is already in place (voice satellite +
+Claude conversation agent). This project **builds the missing "skill"**:
+a Home Assistant integration that exposes two tools to Assist to search for
+a food in Yazio and then log it, with mandatory human confirmation between
+the two.
 
 ```
-Voix → satellite Assist → agent Claude (conversation.claude_conversation)
+Voice → Assist satellite → Claude agent (conversation.claude_conversation)
                               │
                               ├─ 1. script.yazio_search_food ──▶ service yazio_voice.search_food
-                              │      (search-first, ne logge rien)
-                              ├─ Claude relaie le résultat, attend confirmation
+                              │      (search-first, logs nothing)
+                              ├─ Claude relays the result, waits for confirmation
                               └─ 2. script.yazio_log_food ─────▶ service yazio_voice.log_food
                                      (add_consumed_item)
 ```
 
-Tout tourne **dans Home Assistant lui-même** — pas de process séparé (pas
-d'AppDaemon, pas de rest_command, pas de port HTTP à exposer).
+Everything runs **inside Home Assistant itself** — no separate process (no
+AppDaemon, no rest_command, no HTTP port to expose).
 
-- [`custom_components/yazio_voice/`](custom_components/yazio_voice/) — intégration HA : config flow pour les identifiants, deux services natifs (`yazio_voice.search_food`, `yazio_voice.log_food`).
-- [`custom_components/yazio_voice/yazio_client/`](custom_components/yazio_voice/yazio_client/) — lib Python pure (auth, recherche, écriture Yazio), vendée dans l'intégration. Testée (`pytest`), sans dépendance à Home Assistant — c'est pour ça qu'elle est isolée dans son propre dossier.
-- [`homeassistant/scripts_yazio_voice.yaml`](homeassistant/scripts_yazio_voice.yaml) — les deux entités `script.*` à exposer à Assist (les services natifs ne sont pas exposables directement, il faut ce fin wrapper `script:` pour qu'ils apparaissent comme outils Assist).
+- [`custom_components/yazio_voice/`](custom_components/yazio_voice/) — HA integration: config flow for the credentials, two native services (`yazio_voice.search_food`, `yazio_voice.log_food`).
+- [`custom_components/yazio_voice/yazio_client/`](custom_components/yazio_voice/yazio_client/) — pure Python library (auth, search, writing to Yazio), vendored into the integration. Tested (`pytest`) and independent of Home Assistant — which is why it lives in its own folder.
+- [`homeassistant/scripts_yazio_voice.yaml`](homeassistant/scripts_yazio_voice.yaml) — the two `script.*` entities to expose to Assist (native services cannot be exposed directly; this thin `script:` wrapper is needed for them to show up as Assist tools).
 
 ## Installation
 
-### Via HACS (recommandé)
+### Via HACS (recommended)
 
-1. HACS → menu ⋮ → **Dépôts personnalisés** → ajouter `https://github.com/Aldorus/yazio-voice-ha`, catégorie **Intégration**.
-2. Installer « Yazio Voice » depuis HACS, redémarrer Home Assistant.
-3. **Ajouter l'intégration** (seule saisie manuelle avec l'étape 5) : Paramètres → Appareils et services → Ajouter une intégration → « Yazio Voice » → entrer email/mot de passe Yazio. Le mot de passe n'est jamais stocké ensuite, seuls les tokens le sont (dans l'entrée de configuration HA).
-4. Fusionner [`homeassistant/scripts_yazio_voice.yaml`](homeassistant/scripts_yazio_voice.yaml) dans `scripts.yaml`, recharger les scripts.
-5. **Exposer les entités à Assist** (seconde saisie manuelle) : Paramètres → Voix → Exposer, activer `script.yazio_search_food` et `script.yazio_log_food`.
+1. HACS → ⋮ menu → **Custom repositories** → add `https://github.com/Aldorus/yazio-voice-ha`, category **Integration**.
+2. Install "Yazio Voice" from HACS, then restart Home Assistant.
+3. **Add the integration** (one of only two manual steps, the other being step 5): Settings → Devices & services → Add integration → "Yazio Voice" → enter your Yazio email/password. The password is never stored afterwards; only the tokens are (in the HA config entry).
+4. Merge [`homeassistant/scripts_yazio_voice.yaml`](homeassistant/scripts_yazio_voice.yaml) into `scripts.yaml`, then reload scripts.
+5. **Expose the entities to Assist** (second manual step): Settings → Voice assistants → Expose, enable `script.yazio_search_food` and `script.yazio_log_food`.
 
-### Manuellement
+### Manually
 
-1. Copier `custom_components/yazio_voice/` dans `config/custom_components/`.
-2. Suivre les étapes 2 à 5 ci-dessus.
+1. Copy `custom_components/yazio_voice/` into `config/custom_components/`.
+2. Follow steps 2 to 5 above.
 
-## Développement
+## Development
 
 ```bash
 python3 -m venv .venv
@@ -50,12 +50,12 @@ python3 -m venv .venv
 .venv/bin/pytest
 ```
 
-## État / limites connues
+## Status / known limitations
 
-- Pas de fallback "créer un produit custom" si aucun match Yazio
-  satisfaisant (décision CLAUDE.md) — non implémenté pour l'instant.
-- `custom_components/yazio_voice/__init__.py` n'a pas été testé dans une
-  vraie instance HA (pas d'accès filesystem à l'instance de déploiement
-  depuis cette session) — la logique métier (`yazio_client`) est testée,
-  mais l'intégration HA elle-même (config flow, services) reste à valider
-  après installation.
+- No "create a custom product" fallback when there is no satisfactory Yazio
+  match (decision recorded in CLAUDE.md) — not implemented yet.
+- `custom_components/yazio_voice/__init__.py` has not been tested in a real
+  HA instance (no filesystem access to the deployment instance from this
+  session) — the business logic (`yazio_client`) is tested, but the HA
+  integration itself (config flow, services) still needs to be validated
+  after installation.

@@ -23,11 +23,11 @@ def _as_date_str(value) -> str:
 
 
 class YazioClient:
-    """Client Yazio de haut niveau : recherche produit + journal (intake).
+    """High-level Yazio client: product search + diary (intake).
 
-    Toute la logique réseau spécifique à Yazio (endpoints, formats) est
-    isolée ici, derrière cette seule classe, pour pouvoir patcher vite en
-    cas de changement de l'API non officielle.
+    All Yazio-specific network logic (endpoints, formats) is isolated
+    here, behind this single class, so it can be patched quickly if the
+    unofficial API changes.
     """
 
     def __init__(self, auth: YazioAuth, session: Optional[requests.Session] = None) -> None:
@@ -67,14 +67,14 @@ class YazioClient:
         serving: Optional[str] = None,
         serving_quantity: Optional[float] = None,
     ) -> str:
-        """Log un aliment dans le journal Yazio.
+        """Log a food in the Yazio diary.
 
-        `amount` est toujours en unité de base du produit (g ou ml).
-        `serving`/`serving_quantity` sont optionnels et n'existent que pour
-        affichage cohérent côté app Yazio (ex: "2 portions").
+        `amount` is always in the product's base unit (g or ml).
+        `serving`/`serving_quantity` are optional and only exist for a
+        consistent display in the Yazio app (e.g. "2 servings").
         """
         if daytime not in DAYTIMES:
-            raise YazioError(f"daytime invalide: {daytime!r} (attendu: {DAYTIMES})")
+            raise YazioError(f"invalid daytime: {daytime!r} (expected: {DAYTIMES})")
 
         item_id = str(uuid.uuid4())
         body = {
@@ -129,15 +129,15 @@ class YazioClient:
                 timeout=REQUEST_TIMEOUT,
             )
         except requests.RequestException as exc:
-            raise YazioError(f"Requête Yazio impossible ({method} {path}): {exc}") from exc
+            raise YazioError(f"Yazio request failed ({method} {path}): {exc}") from exc
 
         if response.status_code >= 400:
             _LOGGER.warning("Yazio %s %s -> %s", method, path, response.status_code)
-            raise YazioError(f"Yazio a refusé la requête ({method} {path}, status={response.status_code})")
+            raise YazioError(f"Yazio rejected the request ({method} {path}, status={response.status_code})")
 
         if not response.content:
             return None
         try:
             return response.json()
         except ValueError as exc:
-            raise YazioError(f"Réponse Yazio illisible ({method} {path})") from exc
+            raise YazioError(f"Unreadable Yazio response ({method} {path})") from exc

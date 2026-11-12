@@ -1,7 +1,8 @@
 import unicodedata
 
-# Unités qui désignent directement l'unité de base du produit (g ou ml),
-# donc pas de lookup de serving nécessaire.
+# Units that directly designate the product's base unit (g or ml), so no
+# serving lookup is needed. French aliases are kept on purpose: dictation
+# may be in French.
 _BASE_UNIT_ALIASES = {
     "g": {"g", "gramme", "grammes", "gram", "grams"},
     "ml": {"ml", "millilitre", "millilitres", "milliliter", "milliliters"},

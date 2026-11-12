@@ -12,13 +12,13 @@ from .exceptions import YazioAuthError
 
 _LOGGER = logging.getLogger(__name__)
 
-# Marge prise avant expiration pour déclencher un refresh préventif.
+# Margin before expiry at which a preventive refresh is triggered.
 _EXPIRY_MARGIN_SECONDS = 60
 
 
 @dataclass
 class TokenSet:
-    """Paire de tokens Yazio. Ne contient jamais le mot de passe."""
+    """Yazio token pair. Never contains the password."""
 
     access_token: str
     refresh_token: str
@@ -57,12 +57,12 @@ class TokenSet:
 
 
 class YazioAuth:
-    """Gère l'échange login/password -> tokens et le refresh.
+    """Handles the login/password -> tokens exchange and token refresh.
 
-    Le mot de passe n'est utilisé qu'au premier login et n'est jamais
-    conservé par cette classe. Seuls les tokens sont gardés en mémoire ;
-    `on_token_update` permet à l'appelant (ex: intégration Home Assistant)
-    de les persister (config entry storage, etc).
+    The password is only used for the first login and is never kept by
+    this class. Only the tokens are held in memory; `on_token_update`
+    lets the caller (e.g. the Home Assistant integration) persist them
+    (config entry storage, etc).
     """
 
     def __init__(
@@ -79,12 +79,12 @@ class YazioAuth:
         return self._tokens
 
     def load_tokens(self, tokens: TokenSet) -> None:
-        """Réinjecte des tokens déjà persistés (pas de nouveau login)."""
+        """Re-inject previously persisted tokens (no new login)."""
         self._tokens = tokens
 
     def login(self, username: str, password: str) -> TokenSet:
         if not username or not password:
-            raise YazioAuthError("Identifiants Yazio manquants")
+            raise YazioAuthError("Missing Yazio credentials")
 
         response = self._post_token(
             {
@@ -100,9 +100,9 @@ class YazioAuth:
         return self._tokens
 
     def ensure_valid_token(self) -> TokenSet:
-        """Retourne un token d'accès valide, en le rafraîchissant si besoin."""
+        """Return a valid access token, refreshing it if needed."""
         if self._tokens is None:
-            raise YazioAuthError("Aucun token chargé, appeler login() d'abord")
+            raise YazioAuthError("No token loaded, call login() first")
         if self._tokens.is_expired:
             self._refresh()
         return self._tokens
@@ -130,24 +130,24 @@ class YazioAuth:
                 timeout=REQUEST_TIMEOUT,
             )
         except requests.RequestException as exc:
-            raise YazioAuthError(f"Requête vers Yazio impossible: {exc}") from exc
+            raise YazioAuthError(f"Request to Yazio failed: {exc}") from exc
 
         if response.status_code != 200:
-            _LOGGER.warning("Auth Yazio refusée (status=%s)", response.status_code)
-            raise YazioAuthError(f"Auth Yazio refusée (status={response.status_code})")
+            _LOGGER.warning("Yazio auth rejected (status=%s)", response.status_code)
+            raise YazioAuthError(f"Yazio auth rejected (status={response.status_code})")
 
         try:
             payload = response.json()
         except ValueError as exc:
-            raise YazioAuthError("Réponse Yazio illisible (pas du JSON)") from exc
+            raise YazioAuthError("Unreadable Yazio response (not JSON)") from exc
 
         for field in ("access_token", "refresh_token", "expires_in"):
             if field not in payload:
-                raise YazioAuthError(f"Réponse Yazio incomplète, champ manquant: {field}")
+                raise YazioAuthError(f"Incomplete Yazio response, missing field: {field}")
 
         return payload
 
     def _notify_update(self) -> None:
-        _LOGGER.debug("Tokens Yazio mis à jour")
+        _LOGGER.debug("Yazio tokens updated")
         if self._on_token_update and self._tokens is not None:
             self._on_token_update(self._tokens)

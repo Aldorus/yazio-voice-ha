@@ -32,12 +32,12 @@ class YazioVoiceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     auth.login, user_input["email"], user_input["password"]
                 )
             except YazioError:
-                _LOGGER.warning("Login Yazio refusé lors de la configuration")
+                _LOGGER.warning("Yazio login rejected during setup")
                 errors["base"] = "invalid_auth"
             else:
                 await self.async_set_unique_id(user_input["email"])
                 self._abort_if_unique_id_configured()
-                # Seuls les tokens sont conservés — jamais le mot de passe.
+                # Only the tokens are kept — never the password.
                 return self.async_create_entry(
                     title=user_input["email"],
                     data={"tokens": tokens.as_dict()},

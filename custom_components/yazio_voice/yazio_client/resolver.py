@@ -46,7 +46,7 @@ def _to_match(raw: dict) -> ProductMatch:
 
 
 def search_food(client: YazioClient, food: str, max_results: int = 5) -> FoodResolution:
-    """Search-first : interroge la DB Yazio, ne loggue rien."""
+    """Search-first: queries the Yazio DB, logs nothing."""
     raw_results = client.search_products(food) or []
     ranked = sorted(raw_results, key=lambda r: r.get("score", 0.0), reverse=True)
     matches = [_to_match(r) for r in ranked[:max_results]]
@@ -56,10 +56,10 @@ def search_food(client: YazioClient, food: str, max_results: int = 5) -> FoodRes
 def compute_amount(
     client: YazioClient, match: ProductMatch, quantity: float, unit: str
 ) -> tuple[float, Optional[str], Optional[float]]:
-    """Convertit (quantity, unit) dictés en (amount, serving, serving_quantity)
-    dans le format attendu par `add_consumed_item`.
+    """Convert the dictated (quantity, unit) into (amount, serving,
+    serving_quantity) in the format expected by `add_consumed_item`.
 
-    `amount` est toujours en unité de base du produit (g/ml).
+    `amount` is always in the product's base unit (g/ml).
     """
     if is_base_unit_alias(unit, match.base_unit):
         return quantity, None, None
@@ -73,7 +73,7 @@ def compute_amount(
             return quantity * serving["amount"], serving["serving"], quantity
 
     _LOGGER.warning(
-        "Unité '%s' non reconnue pour '%s' (base_unit=%s) — quantité utilisée telle quelle",
+        "Unit '%s' not recognised for '%s' (base_unit=%s) — quantity used as-is",
         unit,
         match.name,
         match.base_unit,
